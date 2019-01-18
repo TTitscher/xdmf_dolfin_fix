@@ -1,7 +1,8 @@
-import os
-import shutil
+import os.path
+import shutil.copy
 from argparse import ArgumentParser
-from . import fix 
+from . import fix
+
 
 def copy_xdmf(src, dest):
     """
@@ -30,6 +31,7 @@ def copy_xdmf(src, dest):
     hdf_dest = os.path.join(os.path.dirname(dest), hdf_dest_base)
     shutil.copy(hdf_src, hdf_dest)
 
+
 def cli():
     p = ArgumentParser(description="Convert.")
     p.add_argument("infile")
@@ -38,6 +40,7 @@ def cli():
 
     copy_xdmf(args.infile, args.outfile)
     fix.fix_ordering(args.outfile)
+
 
 if __name__ == "__main__":
     cli()

@@ -60,7 +60,7 @@ def tet10(data):
             n[7], n[9] = n[9], n[7]
             n[4], n[5] = n[5], n[4]
             n_swaps += 3
-        
+
         if n[1] > n[3]:
             n[1], n[3] = n[3], n[1]
             n[5], n[9] = n[9], n[5]
@@ -73,6 +73,7 @@ def tet10(data):
             n[4], n[6] = n[6], n[4]
             n_swaps += 3
     return n_swaps
+
 
 def triangle6(data):
     r"""
