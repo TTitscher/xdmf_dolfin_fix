@@ -1,5 +1,7 @@
 import os
 import tempfile
+import warnings
+from subprocess import PIPE, Popen
 import meshio
 
 
@@ -7,18 +9,20 @@ def _xdfm_from_geo_string(geo_string, name, dim):
     tmp = tempfile.mkdtemp()
     geo = os.path.join(tmp, name + ".geo")
     msh = os.path.join(tmp, name + ".msh")
-    xdmf = os.path.join(name + ".xdmf")
+    xdmf = os.path.join(tmp, name + ".xdmf")
     
-    if os.path.isfile(xdmf):
-        return xdmf
-
     with open(geo, "w") as f:
         f.write(geo_string)
 
-    gmsh_cmd = "gmsh -{} -order 2 {}".format(dim, geo)
-    os.system(gmsh_cmd)
+    gmsh_cmd = ["gmsh", "-" + str(dim), "-order", "2", geo]
+    p = Popen(gmsh_cmd, stdout=PIPE, stderr=PIPE)
+    output, err = p.communicate()
+    assert not err
+   
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        meshio.write(xdmf, meshio.read(msh))
 
-    meshio.write(xdmf, meshio.read(msh))
     return xdmf
 
 

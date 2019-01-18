@@ -1,6 +1,12 @@
+import os
+import sys
 import unittest
 import get_xdmf
 from dolfin import XDMFFile, Mesh, Measure, assemble
+
+sys.path.insert(0, os.path.abspath('..'))
+from xdmf_fix import fix
+
 
 def area(xdmf):
     mesh = Mesh()
@@ -10,19 +16,22 @@ def area(xdmf):
 
 class TestXdmfFix(unittest.TestCase):
     
-    triangle6 = get_xdmf.triangle6()
-    tet10 = get_xdmf.tet10()
-
-
-    def test_triangle_wrong(self):
-        a = area(self.triangle6)
+    def test_wrong_triangle_area(self):
+        triangle = get_xdmf.triangle6()
+        a = area(triangle)
         self.assertNotAlmostEqual(a, 1.)
-    
-    def test_tet_wrong(self):
-        self.assertRaises(RuntimeError, area, self.tet10) 
-        # a = area(self.tet10)
-        # print("Area without fix:", a)
-        # self.assertNotAlmostEqual(a, 1.)
+   
+    def test_wrong_tet_area(self):
+        tet = fix.fix_tet10(get_xdmf.triangle6())
+        a = area(tet)
+        self.assertNotAlmostEqual(a, 1.)
+
+    def test_fix_tet10(self):
+        tet = get_xdmf.tet10()
+        self.assertRaises(RuntimeError, area, tet) 
+
+        fix.fix_tet10(tet)
+        area(tet)
 
 
 if __name__ == "__main__":
