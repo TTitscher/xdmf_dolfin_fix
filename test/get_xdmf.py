@@ -10,7 +10,7 @@ def _xdfm_from_geo_string(geo_string, name, dim):
     geo = os.path.join(tmp, name + ".geo")
     msh = os.path.join(tmp, name + ".msh")
     xdmf = os.path.join(tmp, name + ".xdmf")
-    
+
     with open(geo, "w") as f:
         f.write(geo_string)
 
@@ -18,7 +18,7 @@ def _xdfm_from_geo_string(geo_string, name, dim):
     p = Popen(gmsh_cmd, stdout=PIPE, stderr=PIPE)
     output, err = p.communicate()
     assert not err
-   
+
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         meshio.write(xdmf, meshio.read(msh))
@@ -33,7 +33,7 @@ SetFactory("OpenCASCADE");
 Rectangle(1) = {0, 0, 0, 1, 1, 0};
 Physical Surface(1) = {1};
             """,
-        "triangle",
+        "triangle6",
         2,
     )
 
@@ -49,7 +49,19 @@ Physical Volume(1) = {1};
         3,
     )
 
-if __name__ == "__main__":
+
+def _move_xdmf(src):
     import shutil
-    shutil.move(triangle6(), "test_triangle_6.xdmf")
-    shutil.move(tet10(), "test_tet_10.xdmf")
+
+    name, ext = os.path.splitext(src)
+    assert ext == ".xdmf"
+
+    dest = os.path.basename(name)
+
+    shutil.move(name + ".xdmf", dest + ".xdmf")
+    shutil.move(name + ".h5", dest + ".h5")
+
+
+if __name__ == "__main__":
+    _move_xdmf(triangle6())
+    _move_xdmf(tet10())

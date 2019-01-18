@@ -14,15 +14,19 @@ def area(xdmf):
 
 
 class TestXdmfFix(unittest.TestCase):
-    def test_wrong_triangle_area(self):
+    def test_triangle_area(self):
         triangle = get_xdmf.triangle6()
-        a = area(triangle)
-        self.assertNotAlmostEqual(a, 1.0)
+        self.assertNotAlmostEqual(area(triangle), 1.0)
 
-    def test_wrong_tet_area(self):
-        tet = fix.fix_tet10(get_xdmf.triangle6())
-        a = area(tet)
-        self.assertNotAlmostEqual(a, 1.0)
+        fix.fix_ordering(triangle)
+        self.assertAlmostEqual(area(triangle), 1.0)
+
+    def test_tet_area(self):
+        tet = fix.fix_tet10(get_xdmf.tet10())
+        self.assertNotAlmostEqual(area(tet), 1.0)
+        
+        fix.fix_ordering(tet)
+        self.assertAlmostEqual(area(tet), 1.0)
 
     def test_fix_tet10(self):
         tet = get_xdmf.tet10()
@@ -30,7 +34,7 @@ class TestXdmfFix(unittest.TestCase):
 
         fix.fix_tet10(tet)
         area(tet)
-
+    
 
 if __name__ == "__main__":
     unittest.main()
