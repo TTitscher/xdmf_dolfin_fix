@@ -43,19 +43,17 @@ def fix_ordering(xdmf):
     hdf, subset = hdf_data_name(xdmf)
     hdf = os.path.join(os.path.dirname(xdmf), hdf)
 
-    if elm == "triangle_6":
-        reorder = node_reordering.triangle6
-    else:
-        reorder = node_reordering.tet10
 
     with h5py.File(hdf, "r+") as f:
         data = f[subset]
         data_array = data[...]
+    
+        if elm == "triangle_6":
+            n_swaps = node_reordering.triangle6(data_array)
+        else:
+            n_swaps = node_reordering.tet10(data_array)
 
-        swap = node_reordering.CountTheSwaps()
-        for row in tqdm(data_array):
-            reorder(row, swap)
-        print("Reordering required {} swaps.".format(swap.n))
+        print("Reordering required {} swaps.".format(n_swaps))
         
         # we do not change the shape...
         data[...] = data_array

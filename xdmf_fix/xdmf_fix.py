@@ -1,7 +1,7 @@
 import os
 import shutil
 from argparse import ArgumentParser
-import fix 
+from . import fix 
 
 def copy_xdmf(src, dest):
     """

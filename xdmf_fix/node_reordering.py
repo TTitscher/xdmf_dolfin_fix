@@ -1,13 +1,4 @@
-class CountTheSwaps:
-    def __init__(self):
-        self.n = 0
-
-    def __call__(self, n, a, b):
-        n[a], n[b] = n[b], n[a]
-        self.n += 1
-
-
-def tet10(n, swap):
+def tet10(data):
     r"""
     Reorder the vertex nodes so that n[0] < n[1] < n[2] < n[4].
     The order of the edge nodes n[4:10] is changed such that the cells
@@ -50,34 +41,40 @@ def tet10(n, swap):
     #
     # Each _swap step produces a valid Tet10.
 
+    n_swaps = 0
+    for n in data:
+        if n[0] > n[1]:
+            n[0], n[1] = n[1], n[0]
+            n[5], n[6] = n[6], n[5]
+            n[8], n[7] = n[7], n[8]
+            n_swaps += 3
 
-    if n[0] > n[1]:
-        swap(n, 0, 1)
-        swap(n, 5, 6)
-        swap(n, 7, 8)
+        if n[2] > n[3]:
+            n[2], n[3] = n[3], n[2]
+            n[6], n[7] = n[7], n[6]
+            n[5], n[8] = n[8], n[5]
+            n_swaps += 3
 
-    if n[2] > n[3]:
-        swap(n, 2, 3)
-        swap(n, 6, 7)
-        swap(n, 5, 8)
+        if n[0] > n[2]:
+            n[0], n[2] = n[2], n[0]
+            n[7], n[9] = n[9], n[7]
+            n[4], n[5] = n[5], n[4]
+            n_swaps += 3
+        
+        if n[1] > n[3]:
+            n[1], n[3] = n[3], n[1]
+            n[5], n[9] = n[9], n[5]
+            n[4], n[7] = n[7], n[4]
+            n_swaps += 3
 
-    if n[0] > n[2]:
-        swap(n, 0, 2)
-        swap(n, 7, 9)
-        swap(n, 4, 5)
+        if n[1] > n[2]:
+            n[1], n[2] = n[2], n[1]
+            n[8], n[9] = n[9], n[8]
+            n[4], n[6] = n[6], n[4]
+            n_swaps += 3
+    return n_swaps
 
-    if n[1] > n[3]:
-        swap(n, 1, 3)
-        swap(n, 5, 9)
-        swap(n, 4, 7)
-
-    if n[1] > n[2]:
-        swap(n, 1, 2)
-        swap(n, 8, 9)
-        swap(n, 4, 6)
-
-
-def triangle6(n, swap):
+def triangle6(data):
     r"""
     Reorder the vertex nodes so that n[0] < n[1] < n[2].
     The order of the edge nodes n[3:6] is changed such that the cells
@@ -103,16 +100,20 @@ def triangle6(n, swap):
     # swap(0, 1);
     # Each _swap step produces a valid Triangle6.
 
-    if n[1] > n[2]:
-        swap(n, 1, 2)
-        swap(n, 3, 5)
+    n_swaps = 0
+    for n in data:
+        if n[1] > n[2]:
+            n[1], n[2] = n[2], n[1]
+            n[3], n[5] = n[5], n[3]
+            n_swaps += 2
 
-    if n[0] > n[2]:
-        swap(n, 0, 2)
-        swap(n, 3, 4)
+        if n[0] > n[2]:
+            n[0], n[2] = n[2], n[0]
+            n[3], n[4] = n[4], n[3]
+            n_swaps += 2
 
-    if n[0] > n[1]:
-        swap(n, 0, 1)
-        swap(n, 4, 5)
-
-
+        if n[0] > n[1]:
+            n[0], n[1] = n[1], n[0]
+            n[4], n[5] = n[5], n[4]
+            n_swaps += 2
+    return n_swaps
