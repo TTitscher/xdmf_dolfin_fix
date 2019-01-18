@@ -1,5 +1,5 @@
 import os.path
-import shutil.copy
+import shutil
 from argparse import ArgumentParser
 from . import fix
 
