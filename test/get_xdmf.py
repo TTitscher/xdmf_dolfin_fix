@@ -50,5 +50,6 @@ Physical Volume(1) = {1};
     )
 
 if __name__ == "__main__":
-    print(triangle6())
-    print(tet10())
+    import shutil
+    shutil.move(triangle6(), "test_triangle_6.xdmf")
+    shutil.move(tet10(), "test_tet_10.xdmf")
