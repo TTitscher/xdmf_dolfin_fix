@@ -1,45 +1,53 @@
 import os.path
-import shutil
+import logging
 from argparse import ArgumentParser
 from . import fix
+from . import convert
+from . import files
 
+def run(infile, outfile, dim=None):
+    files.copy_with_src_ext(infile, outfile)
 
-def copy_xdmf(src, dest):
-    """
-    src ... xdmf file, with corresponding h5 file in same dir
-    dest ... xdmf file. Creates a h5 with same name.
-    """
-    if src == dest:
-        return
+    name, ext = os.path.splitext(outfile)
 
-    src_name, src_ext = os.path.splitext(src)
-    dest_name, dest_ext = os.path.splitext(dest)
+    geo = name + ".geo"
+    msh = name + ".msh"
+    xdmf = name + ".xdmf"
 
-    assert src_ext == ".xdmf"
-    assert dest_ext == ".xdmf"
+    if ext == ".geo":
+        logging.info(geo, "-->", msh)
+        convert.geo_to_msh(geo, msh, dim)
+        ext = ".msh"
+    
+    if ext == ".msh":
+        logging.info(msh, "-->", xdmf)
+        convert.msh_to_xdmf(msh, xdmf)
 
-    # 1) copy xdmfs
-    shutil.copy(src, dest)
-
-    # 2) rename hdfs in dest
-    hdf_src_base = fix.hdf_data_name(src)[0]
-    hdf_dest_base = os.path.basename(dest_name) + ".h5"
-    fix.replace_in_file(dest, hdf_src_base, hdf_dest_base)
-
-    # 3) copy hdfs
-    hdf_src = os.path.join(os.path.dirname(src), hdf_src_base)
-    hdf_dest = os.path.join(os.path.dirname(dest), hdf_dest_base)
-    shutil.copy(hdf_src, hdf_dest)
+    logging.info("Fix", xdmf)
+    fix.fix_ordering(xdmf)
 
 
 def cli():
     p = ArgumentParser(description="Convert.")
     p.add_argument("infile")
-    p.add_argument("outfile")
+    p.add_argument("outfile", nargs="?")
+    p.add_argument("-d", "--dimension", type=int, default=None, choices=[2, 3])
     args = p.parse_args()
 
-    copy_xdmf(args.infile, args.outfile)
-    fix.fix_ordering(args.outfile)
+    infile = args.infile
+    if not os.path.exists(infile):
+        raise RuntimeError("'Cannot open '{}'. Please provide a valid "
+                           "input file.".format(infile))
+    
+    outfile = args.outfile
+    if outfile is None:
+        outfile = infile # perform everything in place
+   
+    dimension = args.dimension
+    if os.path.splitext(infile)[1] == ".geo" and dimension is None:
+        raise RuntimeError("Specifiy '-d, --dimension' for '.geo' files.")
+
+    run(infile, outfile, dimension)
 
 
 if __name__ == "__main__":
