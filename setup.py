@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="xdmf_fix",
-    version="0.2",
+    version="0.4",
     author="Thomas Titscher",
     author_email="thomas.titscher@gmail.com",
     description="A tiny package to modify the node order of quadratic triangles and tets in a gmsh .msh to work with FEniCS/DOLFIN.",
