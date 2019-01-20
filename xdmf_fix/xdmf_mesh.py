@@ -56,7 +56,7 @@ class XDMFMesh:
             else:
                 n_swaps = node_reordering.tet10(data_array)
 
-            logging.info("Reordering required {} swaps.".format(n_swaps))
+            logging.info("Sort vertices required {} swaps.".format(n_swaps))
 
             # we do not change the shape...
             data[...] = data_array
