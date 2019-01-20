@@ -1,6 +1,6 @@
 import os.path
 import logging
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 
 from .xdmf_mesh import XDMFMesh
 from . import convert
@@ -41,32 +41,55 @@ def run(infile, outfile, dim=None):
 
 
 def cli():
-    p = ArgumentParser(description="Convert.")
-    p.add_argument("infile")
-    p.add_argument("outfile", nargs="?")
-    p.add_argument("-d", "--dimension", type=int, default=None, choices=[2, 3])
-    p.add_argument("-v", "--verbose", action="count", default=0)
+    extensions = [".geo", ".msh", ".xdmf"]
+
+    p = ArgumentParser(description="""
+    Changes a XDMF mesh containing quadratic triangles/tetrahedrons to 
+    properly work with FEniCS/DOLFIN.
+
+    Meshes in XDMF format are the only way to import quadratic elements
+    into FEniCS/DOLFIN. DOLFIN performs a renumbering (sort) of the vertex 
+    nodes without changing the edge nodes accordingly. `xdmf-fix` performs
+    a consistent node renumbering so the DOLFIN vertex sort has no effect
+    on the mesh. 
+    
+    OPTIONALY: Depending on the input file format, every step in the chain
+    [.geo]  --gmsh-->  [.msh]  --meshio-->  [.xdmf]  --xdmf-fix-->  [.xdmf]
+    can be performed.
+    """, formatter_class=RawTextHelpFormatter)
+
+    p.add_argument("infile", help="Input file in {} format.".format(extensions))
+    p.add_argument("outfile", nargs="?", help="OPTIONAL: Output file. Defaults to `infile`.")
+    p.add_argument("-d", "--dimension", type=int, default=None, choices=[2, 3], help="Optional input to gmsh.")
+    p.add_argument("-v", help="show for warnings.", action='store_true')
+    p.add_argument("-vv", help="show every output.", action='store_true')
     args = p.parse_args()
 
     infile = args.infile
+    outfile = args.outfile
+    if outfile is None:
+        outfile = infile # perform everything in place
+
     if not os.path.exists(infile):
         raise RuntimeError("'Cannot open '{}'. Please provide a valid "
                            "input file.".format(infile))
     
-    outfile = args.outfile
-    if outfile is None:
-        outfile = infile # perform everything in place
-   
+    if os.path.splitext(infile)[1] not in extensions:
+        raise RuntimeError("Invalid input file format. Use {}.".format(extensions))
+    
+    if os.path.splitext(outfile)[1] != ".xdmf":
+        raise RuntimeError("Output must be in .xdmf format.")
+
     dimension = args.dimension
     if os.path.splitext(infile)[1] == ".geo" and dimension is None:
         raise RuntimeError("Specifiy '-d, --dimension' for '.geo' files.")
-
-    if args.verbose == 0:
-        log_level = logging.ERROR
-    if args.verbose == 1:
+        
+    
+    log_level = logging.ERROR 
+    if args.vv:
+        log_level = logging.DEBUG 
+    elif args.v:
         log_level = logging.WARNING
-    if args.verbose == 2:
-        log_level = logging.DEBUG
 
     logging.basicConfig(level=log_level, 
             format='%(asctime)s.%(msecs)03d %(levelname)s: %(message)s',
