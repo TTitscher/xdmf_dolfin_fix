@@ -25,4 +25,10 @@ def msh_to_xdmf(msh, xdmf):
 
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
-        meshio.write(xdmf, meshio.read(msh))
+        mesh = meshio.read(msh)
+        # cli option -z --prune-z from
+        # https://github.com/nschloe/meshio/blob/a2b733511e943e337d7230403091d12daa0874cc/meshio/cli.py#L28
+        if mesh.points.shape[1] == 3 and numpy.all(numpy.abs(mesh.points[:, 2]) < 1.0e-10):
+            mesh.points = mesh.points[:, :2]
+
+        meshio.write(xdmf, mesh)
