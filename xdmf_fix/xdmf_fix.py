@@ -5,13 +5,14 @@ from argparse import ArgumentParser, RawTextHelpFormatter
 from .xdmf_mesh import XDMFMesh
 from . import convert
 
+
 def copy_with_src_ext(infile, outfile):
     src_name, src_ext = os.path.splitext(infile)
     dest_name, dest_ext = os.path.splitext(outfile)
 
     if src_name == dest_name:
         return
-    
+
     logging.info("{} --> {}".format(infile, dest_name + src_ext))
 
     if src_ext == ".xdmf":
@@ -32,7 +33,7 @@ def run(infile, outfile, dim=None):
     if ext == ".geo":
         convert.geo_to_msh(geo, msh, dim)
         ext = ".msh"
-    
+
     if ext == ".msh":
         convert.msh_to_xdmf(msh, xdmf)
 
@@ -43,7 +44,8 @@ def run(infile, outfile, dim=None):
 def cli():
     extensions = [".geo", ".msh", ".xdmf"]
 
-    p = ArgumentParser(description="""
+    p = ArgumentParser(
+        description="""
     Changes a XDMF mesh containing quadratic triangles/tetrahedrons to 
     properly work with FEniCS/DOLFIN.
 
@@ -56,45 +58,64 @@ def cli():
     OPTIONALY: Depending on the input file format, every step in the chain
     [.geo]  --gmsh-->  [.msh]  --meshio-->  [.xdmf]  --xdmf-fix-->  [.xdmf]
     can be performed.
-    """, formatter_class=RawTextHelpFormatter)
+    """,
+        formatter_class=RawTextHelpFormatter,
+    )
 
     p.add_argument("infile", help="Input file in {} format.".format(extensions))
-    p.add_argument("outfile", nargs="?", help="OPTIONAL: Output file. Defaults to `infile`.")
-    p.add_argument("-d", "--dimension", type=int, default=None, choices=[2, 3], help="Optional input to gmsh.")
-    p.add_argument("-v", help="show for warnings.", action='store_true')
-    p.add_argument("-vv", help="show every output.", action='store_true')
+    p.add_argument(
+        "outfile", nargs="?", help="OPTIONAL: Output file. Defaults to `infile`."
+    )
+    p.add_argument(
+        "-d",
+        "--dimension",
+        type=int,
+        default=None,
+        choices=[2, 3],
+        help="Optional input to gmsh.",
+    )
+    p.add_argument("-v", help="show for warnings.", action="store_true")
+    p.add_argument("-vv", help="show every output.", action="store_true")
     args = p.parse_args()
+
+    log_level = logging.ERROR
+    if args.vv:
+        log_level = logging.DEBUG
+    elif args.v:
+        log_level = logging.WARNING
+
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s.%(msecs)03d %(levelname)s: %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
 
     infile = args.infile
     outfile = args.outfile
     if outfile is None:
-        outfile = infile # perform everything in place
+        outfile = infile  # perform everything in place
 
     if not os.path.exists(infile):
-        raise RuntimeError("'Cannot open '{}'. Please provide a valid "
-                           "input file.".format(infile))
-    
+        logging.error(
+            "Cannot open '{}'. Please provide a valid input file.".format(infile)
+        )
+        return
+
     if os.path.splitext(infile)[1] not in extensions:
-        raise RuntimeError("Invalid input file format. Use {}.".format(extensions))
-    
+        logging.error("Invalid input file format. Use {}.".format(extensions))
+        return
+
     if os.path.splitext(outfile)[1] != ".xdmf":
-        raise RuntimeError("Output must be in .xdmf format.")
+        logging.error("Output must be in .xdmf format.")
+        return
 
     dimension = args.dimension
     if os.path.splitext(infile)[1] == ".geo" and dimension is None:
-        raise RuntimeError("Specifiy '-d, --dimension' for '.geo' files.")
-        
-    
-    log_level = logging.ERROR 
-    if args.vv:
-        log_level = logging.DEBUG 
-    elif args.v:
-        log_level = logging.WARNING
+        logging.error("Specifiy '-d, --dimension' for '.geo' files.")
+        return
 
-    logging.basicConfig(level=log_level, 
-            format='%(asctime)s.%(msecs)03d %(levelname)s: %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S')
     run(infile, outfile, dimension)
+
 
 if __name__ == "__main__":
     cli()
