@@ -38,7 +38,7 @@ def run(infile, outfile, dim=None):
         File name of the input file. Ends with .geo, .msh or .xdmf.
 
     outfile:
-        File name of the output file. Ends with .xdmf.
+        File name of the output file. Extension is ignored. 
 
     dim:
         Global dimension of the mesh. dim != None required for infile = .geo
@@ -131,10 +131,6 @@ def cli():
 
     if os.path.splitext(infile)[1] not in extensions:
         logging.error("Invalid input file format. Use {}.".format(extensions))
-        sys.exit(1)
-
-    if os.path.splitext(outfile)[1] != ".xdmf":
-        logging.error("Output must be in .xdmf format.")
         sys.exit(1)
 
     dimension = args.dimension
