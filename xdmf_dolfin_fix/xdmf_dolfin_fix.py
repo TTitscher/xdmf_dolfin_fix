@@ -54,8 +54,9 @@ def run(infile, outfile, dim=None):
         convert.msh_to_xdmf(infile, xdmf)
 
     if infile_ext == ".xdmf":
-        log_conversion(infile, xdmf)
-        XDMFMesh(infile).copy(xdmf)
+        if infile != xdmf:
+            log_conversion(infile, xdmf)
+            XDMFMesh(infile).copy(xdmf)
 
     # we now have a valid file in `xdmf`
     logging.info("Sort vertices in {}".format(xdmf))
