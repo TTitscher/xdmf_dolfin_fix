@@ -5,8 +5,8 @@ import tempfile
 from dolfin import XDMFFile, Mesh, Measure, assemble
 
 import test_context
-from xdmf_fix.xdmf_mesh import XDMFMesh
-from xdmf_fix import convert
+from xdmf_dolfin_fix.xdmf_mesh import XDMFMesh
+from xdmf_dolfin_fix import convert
     
 tmp = tempfile.mkdtemp()
     

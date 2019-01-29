@@ -2,37 +2,24 @@ import os.path
 import sys
 import shutil
 import logging
+from tempfile import mkdtemp
 from argparse import ArgumentParser, RawTextHelpFormatter
 
 from .xdmf_mesh import XDMFMesh
 from . import convert
 
+
 def log_conversion(a, b):
-    logging.info("{:^20} --> {:^20}".format(a, b))
-
-
-def copy(infile, outfile, ext):
-    if infile == outfile:
-        return
-
-    log_conversion(infile, outfile)
-    if ext == ".xdmf":
-        XDMFMesh(infile).copy(outfile)
-    else:
-        shutil.copy(infile, outfile)
+    logging.info("{} --> {}".format(a, b))
 
 
 def run(infile, outfile, dim=None):
     """
-    Copies the infile 
-        (<in_name><in_ext>) 
-    to 
-        (<out_name><in_ext>)
+    Convert `infile` to DOLFIN-ready xdmf `outfile`.
 
-    and performs the conversion chain
-    <out_name>.geo --> <out_name>.msh --> <out_name>.xdmf --> <out_name>.xdmf(DOLFIN)
-    in-place. The starting point of this chain depends on <in_ext>.
-
+    infile.geo --> <tmp>/infile.msh --> outfile.xdmf --> outfile.xdmf(DOLFIN)
+    infile.msh --> outfile.xdmf --> outfile.xdmf(DOLFIN)
+    infile.xdmf --> outfile.xdmf --> outfile.xdmf(DOLFIN)
 
     infile:
         File name of the input file. Ends with .geo, .msh or .xdmf.
@@ -43,27 +30,37 @@ def run(infile, outfile, dim=None):
     dim:
         Global dimension of the mesh. dim != None required for infile = .geo
     """
-
-    name = os.path.splitext(outfile)[0]
     infile_ext = os.path.splitext(infile)[1]
-
-    copy(infile, name+infile_ext, infile_ext)
-
-    geo = name + ".geo"
-    msh = name + ".msh"
+    
+    name = os.path.splitext(outfile)[0]
     xdmf = name + ".xdmf"
     
     if infile_ext == ".geo":
+        # from geo to temp mesh to xdmf
+        geo = infile
+        
+        tmpname = os.path.join(mkdtemp(), name)
+        msh = tmpname + ".msh"
+
         log_conversion(geo, msh)
         convert.geo_to_msh(geo, msh, dim)
-        infile_ext = ".msh"
 
-    if infile_ext == ".msh":
         log_conversion(msh, xdmf)
         convert.msh_to_xdmf(msh, xdmf)
 
+    if infile_ext == ".msh":
+        # from msh to xdmf
+        log_conversion(infile, xdmf)
+        convert.msh_to_xdmf(infile, xdmf)
+
+    if infile_ext == ".xdmf":
+        log_conversion(infile, xdmf)
+        XDMFMesh(infile).copy(xdmf)
+
+    # we now have a valid file in `xdmf`
     logging.info("Sort vertices in {}".format(xdmf))
     XDMFMesh(xdmf).fix_ordering()
+
 
 def setup_logger(v):
     if v == 0:
@@ -113,7 +110,9 @@ def cli():
         choices=[2, 3],
         help="Optional input to gmsh.",
     )
-    p.add_argument("-v", help="show warnings(), info(-v) or debug(-vv).", action="count", default=0)
+    p.add_argument(
+        "-v", help="show warnings(), info(-v) or debug(-vv).", action="count", default=0
+    )
     args = p.parse_args()
 
     setup_logger(args.v)
