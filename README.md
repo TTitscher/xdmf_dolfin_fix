@@ -1,8 +1,15 @@
-# xdmf_fix
+# xdmf_dolfin_fix
 
 There is an xdmf import issue in FEniCS/DOLFIN. Quadratic triangles and tetrahedrons
-are imported incorrectly. `xdmf-fix` fixes this issue by reordering element numbers.
+are imported incorrectly. The CLI tool `xdmf-dolfin-fix` fixes this issue by reordering element numbers.
 
+### Example usage
+~~~
+xdmf-dolfin-fix old.xdmf            # fix old.xdmf
+xdmf-dolfin-fix old.xdmf new.xdmf   # create fixed new.xdmf
+xdmf-dolfin-fix old.geo -d3         # create fixed old.xdmf from gmsh
+xdmf-dolfin-fix old.msh new.xdmf    # create fixed new.xdmf from gmsh
+~~~
 
 ### Problem
 
@@ -27,7 +34,7 @@ are left unchanged. This results in a twisted geometry.
 
 ### Fix
 
-`xdmf-fix` sorts the vertex nodes **and** reorders the edge nodes accordingly. This
+`xdmf-dolfin-fix` sorts the vertex nodes **and** reorders the edge nodes accordingly. This
 will result in
 
 ~~~
