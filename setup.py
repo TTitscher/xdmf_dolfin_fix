@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="xdmf-dolfin-fix-ttitscher",
-    version="0.5.3",
+    version="0.5.4",
     author="Thomas Titscher",
     author_email="thomas.titscher@gmail.com",
     description="A tiny package to modify the node order of quadratic triangles and tets in a xdmf-hdf mesh to work with FEniCS/DOLFIN.",
@@ -13,14 +13,11 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/TTitscher/xdmf_dolfin_fix",
     packages=setuptools.find_packages(),
-    install_requires=["h5py"],
-    extras_require={
-        "all": ["meshio"],
-    },
+    install_requires=["h5py", "meshio"],
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
     ],
-    entry_points={"console_scripts": ["xdmf-dolfin-fix=xdmf_dolfin_fix.xdmf_dolfin_fix:cli [all]"]}
+    entry_points={"console_scripts": ["xdmf-dolfin-fix=xdmf_dolfin_fix.xdmf_dolfin_fix:cli"]}
 )

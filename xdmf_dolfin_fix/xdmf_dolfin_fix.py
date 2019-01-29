@@ -88,9 +88,9 @@ def cli():
 
     Meshes in XDMF format are the only way to import quadratic elements
     into FEniCS/DOLFIN. DOLFIN performs a renumbering (sort) of the vertex 
-    nodes without changing the edge nodes accordingly. `xdmf-fix` performs
-    a consistent node renumbering so the DOLFIN vertex sort has no effect
-    on the mesh. 
+    nodes without changing the edge nodes accordingly. `xdmf-dolfin-fix` 
+    performs a consistent node renumbering so the DOLFIN vertex sort has no 
+    effect on the mesh. 
     
     OPTIONALY: Depending on the input file format, every step in the chain
     [.geo]  --gmsh-->  [.msh]  --meshio-->  [.xdmf]  --xdmf-fix-->  [.xdmf]
