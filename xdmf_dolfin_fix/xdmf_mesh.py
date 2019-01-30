@@ -2,7 +2,7 @@ import os
 import re
 import shutil
 import logging
-import xml.etree.ElementTree as ET
+from lxml import etree as ET
 import h5py
 
 from . import node_reordering
