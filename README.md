@@ -20,13 +20,14 @@ in quadratic triangles and quadratic tetrahedrons -- are not swapped.
 So internally, the node numbers of an arbitrary quadratic tetrahedron
 
 ~~~
-[51 74 12 | 14 72 1003]
+[ vertices |    edges   ]
+[ 51 74 12 | 14 72 1003 ]
 ~~~
 
 would be reordered to
 
 ~~~
-[12 51 74 | 14 72 1003]
+[ 12 51 74 | 14 72 1003 ]
 ~~~
 
 Now, the vertex nodes `[12 51 74]` are sorted, but the edge nodes `[14 72 1003]`
@@ -38,7 +39,7 @@ are left unchanged. This results in a twisted geometry.
 will result in
 
 ~~~
-[12 51 74 | 1003 14 74]
+[ 12 51 74 | 1003 14 74 ]
 ~~~
 
 A further sorting within DOLFIN has no effect and, thus, will not mess up
