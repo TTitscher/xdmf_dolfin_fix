@@ -13,7 +13,7 @@ def log_conversion(a, b):
     logging.info("{} --> {}".format(a, b))
 
 
-def run(infile, outfile, dim=None):
+def fix(infile, outfile, dim=None):
     """
     Convert `infile` to DOLFIN-ready xdmf `outfile`.
 
@@ -92,7 +92,7 @@ def cli():
     performs a consistent node renumbering so the DOLFIN vertex sort has no 
     effect on the mesh. 
     
-    OPTIONALY: Depending on the input file format, every step in the chain
+    Depending on the input file format, every step in the chain
     [.geo]  --gmsh-->  [.msh]  --meshio-->  [.xdmf]  --xdmf-fix-->  [.xdmf]
     can be performed.
     """,
@@ -138,7 +138,7 @@ def cli():
         logging.error("Specifiy '-d, --dimension' for '.geo' files.")
         sys.exit(1)
 
-    run(infile, outfile, dimension)
+    fix(infile, outfile, dimension)
 
 
 if __name__ == "__main__":
